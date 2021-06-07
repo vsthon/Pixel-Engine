@@ -6,11 +6,14 @@
 class Engine
 {
 public:
+	// Initialize the engine only once
 	static void Init() noexcept;
+	// Constructor
 	Engine(const char* title, int width, int height);
+	// Run bascially just calls window.Run();
 	int Run() noexcept;
-	void BeginFrame();
-	void ClearScreen(float r, float g, float b);
+	// Clears the back buffer
+	void BeginFrame(float r, float g, float b);
 	void EndFrame();
 private:
 	Window window;

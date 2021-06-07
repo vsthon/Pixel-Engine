@@ -42,10 +42,7 @@ int Engine::Run() noexcept
 	return window.Run();
 }
 
-void Engine::BeginFrame()
-{}
-
-void Engine::ClearScreen(float r, float g, float b)
+void Engine::BeginFrame(float r, float g, float b)
 {
 	float color[] = { r, g, b, 1.f };
 	context->ClearRenderTargetView(backbufferview.Get(), color);

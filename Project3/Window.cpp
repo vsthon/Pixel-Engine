@@ -38,12 +38,14 @@ int Window::Run() noexcept
 	return 1;
 }
 
-Window::Window(const char* title, unsigned int width, unsigned int height)
+Window::Window(const char* title, unsigned short width, unsigned short height)
 {
 	// Check if the window is not initialized
 	assert(initialized == true && "Window is not initialized");
 	// Create the window handle
-	handleWindow = CreateWindowA(wndClassName, title, WS_SYSMENU | WS_MINIMIZEBOX, 0, 0, width, height, NULL, NULL, GetModuleHandle(nullptr), NULL);
+	RECT windowrect = { 0, 0, (LONG)width, (LONG)height };
+	AdjustWindowRect(&windowrect, WS_OVERLAPPEDWINDOW, FALSE);
+	handleWindow = CreateWindowA(wndClassName, title, WS_SYSMENU | WS_MINIMIZEBOX, 0, 0, windowrect.right - windowrect.left, windowrect.bottom - windowrect.top, NULL, NULL, GetModuleHandle(nullptr), NULL);
 	// Show the window
 	ShowWindow(handleWindow, SW_SHOW);
 }

@@ -9,7 +9,7 @@ public:
 	// Main loop
 	static int Run() noexcept;
 	// Constructor
-	Window(const char* title, unsigned int width, unsigned int height);
+	Window(const char* title, unsigned short width, unsigned short height);
 	// Get window handle;
 	HWND GetWindowHandle() noexcept;
 private:
