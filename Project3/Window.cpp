@@ -22,16 +22,6 @@ void Window::Initialize() noexcept
 	initialized = true;
 }
 
-Window::Window(const char* title, unsigned int width, unsigned int height)
-{
-	// Check if the window is not initialized
-	assert(initialized == true && "Window is not initialized");
-	// Create the window handle
-	handleWindow = CreateWindowA(wndClassName, title, WS_SYSMENU | WS_MINIMIZEBOX, 0, 0, width, height, NULL, NULL, GetModuleHandle(nullptr), NULL);
-	// Show the window
-	ShowWindow(handleWindow, SW_SHOW);
-}
-
 int Window::Run() noexcept
 {
 	MSG message = {};
@@ -46,6 +36,21 @@ int Window::Run() noexcept
 		DispatchMessage(&message);
 	}
 	return 1;
+}
+
+Window::Window(const char* title, unsigned int width, unsigned int height)
+{
+	// Check if the window is not initialized
+	assert(initialized == true && "Window is not initialized");
+	// Create the window handle
+	handleWindow = CreateWindowA(wndClassName, title, WS_SYSMENU | WS_MINIMIZEBOX, 0, 0, width, height, NULL, NULL, GetModuleHandle(nullptr), NULL);
+	// Show the window
+	ShowWindow(handleWindow, SW_SHOW);
+}
+
+HWND Window::GetWindowHandle() noexcept
+{
+	return handleWindow;
 }
 
 LRESULT __stdcall Window::WinProc(HWND handleWindow, UINT message, WPARAM wParam, LPARAM lParam)

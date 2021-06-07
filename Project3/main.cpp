@@ -1,10 +1,14 @@
-#include "Window.h"
+#include "Engine.h"
 
 int __stdcall wWinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE, LPWSTR pCmdLine, int)
 {
-	Window::Initialize();
+	Engine::Init();
+	Engine engine("Hello", 800, 600);
 
-	Window win("Hello world", 800, 600);
-	while (win.Run() > 0);
+	while (engine.Run() > 0)
+	{
+		engine.ClearScreen(1.f, .5f, 1.f);
+		engine.EndFrame();
+	}
 	return 0;
 }

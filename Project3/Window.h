@@ -6,10 +6,12 @@ class Window
 public:
 	// Initialize will NOT create a window.
 	static void Initialize() noexcept;
-	// Constructor
-	Window(const char* title, unsigned int width, unsigned int height);
 	// Main loop
 	static int Run() noexcept;
+	// Constructor
+	Window(const char* title, unsigned int width, unsigned int height);
+	// Get window handle;
+	HWND GetWindowHandle() noexcept;
 private:
 	// Window procedure;
 	static LRESULT __stdcall WinProc(HWND handleWindow, UINT message, WPARAM wParam, LPARAM lParam);
