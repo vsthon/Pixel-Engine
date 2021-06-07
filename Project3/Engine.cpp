@@ -1,6 +1,10 @@
 #include "Engine.h"
 #include <d3d11.h>
+#include <exception>
+#include <stdexcept>
+#include <string>
 #pragma comment(lib, "d3d11.lib")
+#define THROW_IF_FAILED(hresult, message) if(FAILED(hresult)) throw std::logic_error(message)
 
 namespace WRL = Microsoft::WRL;
 
@@ -13,6 +17,7 @@ Engine::Engine(const char* title, int width, int height)
 	:
 	window(title, width, height)
 {
+	// Swap chain desc
 	DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
 	swapChainDesc.BufferDesc.Width = 0u;
 	swapChainDesc.BufferDesc.Height = 0u;
@@ -29,12 +34,15 @@ Engine::Engine(const char* title, int width, int height)
 	swapChainDesc.Windowed = TRUE;
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 	swapChainDesc.Flags = 0u;
-
-	D3D11CreateDeviceAndSwapChain(NULL,D3D_DRIVER_TYPE_HARDWARE,NULL,D3D11_CREATE_DEVICE_DEBUG,NULL,0u,D3D11_SDK_VERSION,&swapChainDesc,&swapchain,&device,NULL,&context);
-
+	// create device, swapchain, and context
+	THROW_IF_FAILED(D3D11CreateDeviceAndSwapChain(
+		NULL, D3D_DRIVER_TYPE_HARDWARE, NULL,
+		D3D11_CREATE_DEVICE_DEBUG, NULL, 0u, D3D11_SDK_VERSION,
+		&swapChainDesc, &swapchain, &device, NULL, &context), "Error on creating deviceandswapchain!");
+	// create rtv to backbuffer
 	WRL::ComPtr<ID3D11Resource> backbuffer;
-	swapchain->GetBuffer(0u, __uuidof(ID3D11Resource), &backbuffer);
-	device->CreateRenderTargetView(backbuffer.Get(), nullptr, &backbufferview);
+	THROW_IF_FAILED(swapchain->GetBuffer(6u, __uuidof(ID3D11Resource), &backbuffer), "Error on creating backbuffer!");
+	THROW_IF_FAILED(device->CreateRenderTargetView(backbuffer.Get(), nullptr, &backbufferview), "Error on creating RTV for backbuffer!");
 }
 
 int Engine::Run() noexcept
@@ -50,5 +58,5 @@ void Engine::BeginFrame(float r, float g, float b)
 
 void Engine::EndFrame()
 {
-	swapchain->Present(1u, 0u);
+	THROW_IF_FAILED(swapchain->Present(1u, 0u), "Error on presenting!");
 }
