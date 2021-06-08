@@ -176,6 +176,9 @@ Engine::Engine(const char* title, unsigned short width, unsigned short height)
 	context->PSSetShaderResources(0u, 1u, texture.GetAddressOf());
 
 	D3D11_SAMPLER_DESC samplerdesc = {};
+	samplerdesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerdesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerdesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 	WRL::ComPtr<ID3D11SamplerState> sampler;
 	THROW_IF_FAILED(device->CreateSamplerState(&samplerdesc, &sampler), "Error on creating samplerstate!");
 	context->PSSetSamplers(0u, 1u, sampler.GetAddressOf());
