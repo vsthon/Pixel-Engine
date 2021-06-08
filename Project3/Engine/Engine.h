@@ -9,7 +9,7 @@ public:
 	// Initialize the engine only once
 	static void Init() noexcept;
 	// Constructor
-	Engine(const char* title, int width, int height);
+	Engine(const char* title, unsigned short width, unsigned short height);
 	// Run bascially just calls window.Run();
 	int Run() noexcept;
 	// Clears the back buffer
@@ -17,6 +17,8 @@ public:
 	void EndFrame();
 private:
 	Window window;
+	unsigned short width;
+	unsigned short height;
 private:
 	Microsoft::WRL::ComPtr<ID3D11Device> device;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> swapchain;

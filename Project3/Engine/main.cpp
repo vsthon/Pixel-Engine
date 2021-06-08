@@ -19,7 +19,7 @@ int __stdcall wWinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE, _In_ LPWSTR pCm
 	}
 	catch (...)
 	{
-
+		MessageBoxA(NULL, "Unknown exception", "Exception caught:", MB_OK | MB_ICONEXCLAMATION);
 	}
 	return 0;
 }
