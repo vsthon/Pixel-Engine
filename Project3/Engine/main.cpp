@@ -10,6 +10,13 @@ int __stdcall wWinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE, _In_ LPWSTR pCm
 		while (engine.Run() > 0)
 		{
 			engine.BeginFrame(1.f, .5f, 1.f);
+			for (int i = 0; i < 20; i++)
+			{
+				for(int j = 0; j < 20; j++)
+				{
+					engine.SetPixel(i, j, 255, 255, 255);
+				}
+			}
 			engine.EndFrame();
 		}
 	}

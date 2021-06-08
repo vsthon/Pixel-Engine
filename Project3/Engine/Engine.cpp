@@ -19,6 +19,7 @@ Engine::Engine(const char* title, unsigned short width, unsigned short height)
 	:
 	width(width),
 	height(height),
+	systemBuffer(new Color[width * height]),
 	window(title, width, height)
 {
 	// Swap chain desc
@@ -39,9 +40,13 @@ Engine::Engine(const char* title, unsigned short width, unsigned short height)
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 	swapChainDesc.Flags = 0u;
 	// create device, swapchain, and context
+	UINT createdeviceandswapflags = 0u;
+#ifndef NDEBUG
+	createdeviceandswapflags = D3D11_CREATE_DEVICE_DEBUG;
+#endif
 	THROW_IF_FAILED(D3D11CreateDeviceAndSwapChain(
 		NULL, D3D_DRIVER_TYPE_HARDWARE, NULL,
-		D3D11_CREATE_DEVICE_DEBUG, NULL, 0u, D3D11_SDK_VERSION,
+		createdeviceandswapflags, NULL, 0u, D3D11_SDK_VERSION,
 		&swapChainDesc, &swapchain, &device, NULL, &context), "Error on creating deviceandswapchain!");
 	// create rtv to backbuffer
 	WRL::ComPtr<ID3D11Resource> backbuffer;
@@ -49,32 +54,30 @@ Engine::Engine(const char* title, unsigned short width, unsigned short height)
 	THROW_IF_FAILED(device->CreateRenderTargetView(backbuffer.Get(), nullptr, &backbufferview), "Error on creating RTV for backbuffer!");
 
 	
-}
 
-int Engine::Run() noexcept
-{
-	return window.Run();
-}
-
-void Engine::BeginFrame(float r, float g, float b)
-{
-	float color[] = { r, g, b, 1.f };
-	context->ClearRenderTargetView(backbufferview.Get(), color);
-}
-
-void Engine::EndFrame()
-{
+	// Pipeline initialization
+	// The Vertex type
 	struct Vertex
 	{
-		float x;
-		float y;
+		struct
+		{
+			float x;
+			float y;
+		} pos;
+		struct
+		{
+			float u;
+			float v;
+		} uv;
 	};
+	// Vertex buffer
 	Vertex vertexBuffer[] =
 	{
-		{-1.f, 1.f},
-		{1.f, 1.f},
-		{-1.f, -1.f},
-		{1.f, -1.f}
+		    // pos          // uv
+		{ {-1.f, 1.f},    {0.f, 0.f} },
+		{ {1.f, 1.f},     {1.f, 0.f} },
+		{ {-1.f, -1.f},   {0.f, 1.f} },
+		{ {1.f, -1.f },   { 1.f, 1.f } }
 	};
 	D3D11_BUFFER_DESC vBufDesc = {};
 	vBufDesc.ByteWidth = sizeof(vertexBuffer);
@@ -91,7 +94,7 @@ void Engine::EndFrame()
 	UINT offset = 0u;
 	context->IASetVertexBuffers(0u, 1u, vBuf.GetAddressOf(), &stride, &offset);
 
-
+	// Index Buffer
 	unsigned short indexBuffer[] =
 	{
 		0,1,2,
@@ -111,6 +114,7 @@ void Engine::EndFrame()
 	device->CreateBuffer(&iBufDesc, &iBufData, &iBuf);
 	context->IASetIndexBuffer(iBuf.Get(), DXGI_FORMAT_R16_UINT, 0u);
 
+	// Shaders
 	WRL::ComPtr<ID3DBlob> blob;
 	WRL::ComPtr<ID3D11PixelShader> pixelshader;
 	D3DReadFileToBlob(L"PixelShader.cso", &blob);
@@ -122,21 +126,20 @@ void Engine::EndFrame()
 	device->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &vertexshader);
 	context->VSSetShader(vertexshader.Get(), nullptr, 0u);
 
+	// Topology
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	D3D11_INPUT_ELEMENT_DESC inputdesc = {};
-	inputdesc.SemanticName = "Position";
-	inputdesc.SemanticIndex = 0u;
-	inputdesc.Format = DXGI_FORMAT_R32G32_FLOAT;
-	inputdesc.InputSlot = 0u;
-	inputdesc.AlignedByteOffset = 0u;
-	inputdesc.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	inputdesc.InstanceDataStepRate = 0u;
+	// Input desc
+	const D3D11_INPUT_ELEMENT_DESC inputdesc[] =
+	{
+		{"Position", 0u, DXGI_FORMAT_R32G32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u},
+		{"TextureCoord", 0u, DXGI_FORMAT_R32G32_FLOAT, 0u, 8u, D3D11_INPUT_PER_VERTEX_DATA, 0u},
+	};
 	WRL::ComPtr<ID3D11InputLayout> inputlayout;
-	device->CreateInputLayout(&inputdesc, 1u, blob->GetBufferPointer(), blob->GetBufferSize(), &inputlayout);
+	device->CreateInputLayout(inputdesc, 2u, blob->GetBufferPointer(), blob->GetBufferSize(), &inputlayout);
 	context->IASetInputLayout(inputlayout.Get());
 
-	context->OMSetRenderTargets(1u, backbufferview.GetAddressOf(), nullptr);
+	// viewport
 	D3D11_VIEWPORT viewport;
 	viewport.TopLeftX = 0.f;
 	viewport.TopLeftY = 0.f;
@@ -147,6 +150,82 @@ void Engine::EndFrame()
 
 	context->RSSetViewports(1u, &viewport);
 
+	D3D11_TEXTURE2D_DESC texturedesc = {};
+	texturedesc.Width = width;
+	texturedesc.Height = height;
+	texturedesc.MipLevels = 1u;
+	texturedesc.ArraySize = 1u;
+	texturedesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+	texturedesc.SampleDesc.Count = 1u;
+	texturedesc.SampleDesc.Quality = 0u;
+	texturedesc.Usage = D3D11_USAGE_DYNAMIC;
+	texturedesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	texturedesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	texturedesc.MiscFlags = 0u;
+	D3D11_SUBRESOURCE_DATA texturedata = {};
+	texturedata.pSysMem = systemBuffer;
+	texturedata.SysMemPitch = sizeof(Color) * width;
+	device->CreateTexture2D(&texturedesc, &texturedata, &backbuffertexture);
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC shaderviewdesc = {};
+	shaderviewdesc.Format = texturedesc.Format;
+	shaderviewdesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	shaderviewdesc.Texture2D.MipLevels = 1u;
+	WRL::ComPtr<ID3D11ShaderResourceView> texture;
+	device->CreateShaderResourceView(backbuffertexture.Get(), &shaderviewdesc, &texture);
+	context->PSSetShaderResources(0u, 1u, texture.GetAddressOf());
+
+	D3D11_SAMPLER_DESC samplerdesc = {};
+	WRL::ComPtr<ID3D11SamplerState> sampler;
+	device->CreateSamplerState(&samplerdesc, &sampler);
+	context->PSSetSamplers(0u, 1u, sampler.GetAddressOf());
+}
+
+int Engine::Run() noexcept
+{
+	return window.Run();
+}
+
+void Engine::BeginFrame(float r, float g, float b)
+{
+	float color[] = { r, g, b, 1.f };
+	context->ClearRenderTargetView(backbufferview.Get(), color);
+}
+
+void Engine::SetPixel(int x, int y, Color c) noexcept
+{
+	systemBuffer[y * width + x] = c;
+}
+
+void Engine::SetPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b) noexcept
+{
+	SetPixel(x, y, { r, g, b });
+}
+
+int Engine::GetWidth() const noexcept
+{
+	return width;
+}
+
+int Engine::GetHeight() const noexcept
+{
+	return height;
+}
+
+void Engine::EndFrame()
+{
+	// Copied from Chili's framework www.planetchili.net
+	context->Map(backbuffertexture.Get(), 0u, D3D11_MAP_WRITE_DISCARD, 0u, &mappedSBR);
+	Color* pDst = reinterpret_cast<Color*>(mappedSBR.pData);
+	const size_t dstPitch = mappedSBR.RowPitch / sizeof(Color);
+	const size_t srcPitch = width;
+	const size_t rowBytes = srcPitch * sizeof(Color);
+	for (size_t y = 0u; y < height; y++)
+	{
+		memcpy(&pDst[y * dstPitch], &systemBuffer[y * srcPitch], rowBytes);
+	}
+	context->Unmap(backbuffertexture.Get(), 0u);
+	context->OMSetRenderTargets(1u, backbufferview.GetAddressOf(), nullptr);
 	context->DrawIndexed(6u, 0u, 0u);
 	THROW_IF_FAILED(swapchain->Present(1u, 0u), "Error on presenting!");
 }
