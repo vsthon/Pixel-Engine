@@ -22,7 +22,7 @@
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{f038c02b-5d59-45af-b0ca-a775735b21b7}</ProjectGuid>
-    <RootNamespace>Project3</RootNamespace>
+    <RootNamespace>PixelEngine</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>PixelEngine</ProjectName>
   </PropertyGroup>

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Project3", "Project3\Project3.vcxproj", "{F038C02B-5D59-45AF-B0CA-A775735B21B7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PixelEngine", "PixelEngine\PixelEngine.vcxproj", "{F038C02B-5D59-45AF-B0CA-A775735B21B7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
