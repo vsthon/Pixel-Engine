@@ -21,7 +21,7 @@ public:
 	// Run bascially just calls window.Run();
 	int Run() noexcept;
 	// Clears the back buffer
-	void BeginFrame(float r, float g, float b);
+	void BeginFrame();
 	// Set a pixel color in system memory
 	void SetPixel(int x, int y, Color c) noexcept;
 	void SetPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b) noexcept;

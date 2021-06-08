@@ -189,9 +189,9 @@ int Engine::Run() noexcept
 	return window.Run();
 }
 
-void Engine::BeginFrame(float r, float g, float b)
+void Engine::BeginFrame()
 {
-	float color[] = { r, g, b, 1.f };
+	float color[] = { 0.f, 0.f, 0.f, 1.f };
 	context->ClearRenderTargetView(backbufferview.Get(), color);
 }
 
