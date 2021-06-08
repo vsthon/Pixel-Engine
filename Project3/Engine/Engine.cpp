@@ -89,7 +89,7 @@ Engine::Engine(const char* title, unsigned short width, unsigned short height)
 	D3D11_SUBRESOURCE_DATA vBufData = {};
 	vBufData.pSysMem = vertexBuffer;
 	WRL::ComPtr<ID3D11Buffer> vBuf;
-	device->CreateBuffer(&vBufDesc, &vBufData, &vBuf);
+	THROW_IF_FAILED(device->CreateBuffer(&vBufDesc, &vBufData, &vBuf), "Error on creating vertex buffer!");
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0u;
 	context->IASetVertexBuffers(0u, 1u, vBuf.GetAddressOf(), &stride, &offset);
@@ -111,19 +111,19 @@ Engine::Engine(const char* title, unsigned short width, unsigned short height)
 	D3D11_SUBRESOURCE_DATA iBufData = {};
 	iBufData.pSysMem = indexBuffer;
 	WRL::ComPtr<ID3D11Buffer> iBuf;
-	device->CreateBuffer(&iBufDesc, &iBufData, &iBuf);
+	THROW_IF_FAILED(device->CreateBuffer(&iBufDesc, &iBufData, &iBuf), "Error on creating index buffer!");
 	context->IASetIndexBuffer(iBuf.Get(), DXGI_FORMAT_R16_UINT, 0u);
 
 	// Shaders
 	WRL::ComPtr<ID3DBlob> blob;
 	WRL::ComPtr<ID3D11PixelShader> pixelshader;
-	D3DReadFileToBlob(L"PixelShader.cso", &blob);
-	device->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &pixelshader);
+	THROW_IF_FAILED(D3DReadFileToBlob(L"PixelShader.cso", &blob), "Error on compiling pixel shader! Did you mess up the file name?");
+	THROW_IF_FAILED(device->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &pixelshader), "Error on creating pixel shader!");
 	context->PSSetShader(pixelshader.Get(), nullptr, 0u);
 
 	WRL::ComPtr<ID3D11VertexShader> vertexshader;
-	D3DReadFileToBlob(L"VertexShader.cso", &blob);
-	device->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &vertexshader);
+	THROW_IF_FAILED(D3DReadFileToBlob(L"VertexShader.cso", &blob), "Error on compiling vertex shader! Did you mess up the file name?");
+	THROW_IF_FAILED(device->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &vertexshader), "Error on creating vertex shader!");
 	context->VSSetShader(vertexshader.Get(), nullptr, 0u);
 
 	// Topology
@@ -136,7 +136,7 @@ Engine::Engine(const char* title, unsigned short width, unsigned short height)
 		{"TextureCoord", 0u, DXGI_FORMAT_R32G32_FLOAT, 0u, 8u, D3D11_INPUT_PER_VERTEX_DATA, 0u},
 	};
 	WRL::ComPtr<ID3D11InputLayout> inputlayout;
-	device->CreateInputLayout(inputdesc, 2u, blob->GetBufferPointer(), blob->GetBufferSize(), &inputlayout);
+	THROW_IF_FAILED(device->CreateInputLayout(inputdesc, 2u, blob->GetBufferPointer(), blob->GetBufferSize(), &inputlayout), "Error on creating input layout!");
 	context->IASetInputLayout(inputlayout.Get());
 
 	// viewport
@@ -165,19 +165,19 @@ Engine::Engine(const char* title, unsigned short width, unsigned short height)
 	D3D11_SUBRESOURCE_DATA texturedata = {};
 	texturedata.pSysMem = systemBuffer;
 	texturedata.SysMemPitch = sizeof(Color) * width;
-	device->CreateTexture2D(&texturedesc, &texturedata, &backbuffertexture);
+	THROW_IF_FAILED(device->CreateTexture2D(&texturedesc, &texturedata, &backbuffertexture), "Error on creating systembuffer texture!");
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderviewdesc = {};
 	shaderviewdesc.Format = texturedesc.Format;
 	shaderviewdesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	shaderviewdesc.Texture2D.MipLevels = 1u;
 	WRL::ComPtr<ID3D11ShaderResourceView> texture;
-	device->CreateShaderResourceView(backbuffertexture.Get(), &shaderviewdesc, &texture);
+	THROW_IF_FAILED(device->CreateShaderResourceView(backbuffertexture.Get(), &shaderviewdesc, &texture), "Error on creating view to the systembuffer texture!");
 	context->PSSetShaderResources(0u, 1u, texture.GetAddressOf());
 
 	D3D11_SAMPLER_DESC samplerdesc = {};
 	WRL::ComPtr<ID3D11SamplerState> sampler;
-	device->CreateSamplerState(&samplerdesc, &sampler);
+	THROW_IF_FAILED(device->CreateSamplerState(&samplerdesc, &sampler), "Error on creating samplerstate!");
 	context->PSSetSamplers(0u, 1u, sampler.GetAddressOf());
 }
 
@@ -215,7 +215,7 @@ int Engine::GetHeight() const noexcept
 void Engine::EndFrame()
 {
 	// Copied from Chili's framework www.planetchili.net
-	context->Map(backbuffertexture.Get(), 0u, D3D11_MAP_WRITE_DISCARD, 0u, &mappedSBR);
+	THROW_IF_FAILED(context->Map(backbuffertexture.Get(), 0u, D3D11_MAP_WRITE_DISCARD, 0u, &mappedSBR), "Error on mapping SBR!");
 	Color* pDst = reinterpret_cast<Color*>(mappedSBR.pData);
 	const size_t dstPitch = mappedSBR.RowPitch / sizeof(Color);
 	const size_t srcPitch = width;

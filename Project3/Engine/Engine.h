@@ -28,10 +28,11 @@ public:
 	// Get width / height
 	int GetWidth() const noexcept;
 	int GetHeight() const noexcept;
+	// Present the frame
 	void EndFrame();
 public:
-	unsigned short width;
-	unsigned short height;
+	const unsigned short width;
+	const unsigned short height;
 private:
 	Color* systemBuffer = nullptr;
 	Window window;
