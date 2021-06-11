@@ -7,23 +7,42 @@ int __stdcall wWinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE, _In_ LPWSTR pCm
 	try
 	{
 		Engine engine("Hello", 800, 600);
-		int x = 200;
-		int y = 200;
-		while (engine.Run() > 0)
+		Engine engine2("Hello2", 800, 600);
+		int x1 = 200;
+		int y1 = 200;
+		int x2 = 200;
+		int y2 = 200;
+		while (engine.Run() > 0 && engine2.Run() > 0)
 		{
 			engine.BeginFrame();
-			if (engine.KeyIsPressed('W')) { y--; }
-			if (engine.KeyIsPressed('A')) { x--; }
-			if (engine.KeyIsPressed('S')) { y++; }
-			if (engine.KeyIsPressed('D')) { x++; }
+			engine2.BeginFrame();
+			// Engine 1
+			if (engine.KeyIsPressed('W')) { y1--; }
+			if (engine.KeyIsPressed('A')) { x1--; }
+			if (engine.KeyIsPressed('S')) { y1++; }
+			if (engine.KeyIsPressed('D')) { x1++; }
 
-			for (int inx = x; inx < x + 300; inx++)
+			for (int inx = x1; inx < x1 + 300; inx++)
 			{
-				for (int iny = y; iny < y + 300; iny++)
+				for (int iny = y1; iny < y1 + 300; iny++)
 				{
 					engine.SetPixel(inx, iny, 255, 255, 255);
 				}
 			}
+			// Engine 2
+			if (engine2.KeyIsPressed('W')) { y2--; }
+			if (engine2.KeyIsPressed('A')) { x2--; }
+			if (engine2.KeyIsPressed('S')) { y2++; }
+			if (engine2.KeyIsPressed('D')) { x2++; }
+
+			for (int inx = x2; inx < x2 + 300; inx++)
+			{
+				for (int iny = y2; iny < y2 + 300; iny++)
+				{
+					engine2.SetPixel(inx, iny, 255, 255, 255);
+				}
+			}
+			engine2.EndFrame();
 			engine.EndFrame();
 		}
 	}

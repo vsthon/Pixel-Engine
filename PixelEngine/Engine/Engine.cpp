@@ -192,13 +192,7 @@ int Engine::Run() noexcept
 
 void Engine::BeginFrame()
 {
-	for (size_t x = 0u; x < width; x++)
-	{
-		for (size_t y = 0u; y < height; y++)
-		{
-			systemBuffer[y * width + x] = { 0u, 0u, 0u, 0u };
-		}
-	}
+	memset(systemBuffer, 0u, (width * height) * sizeof(Color));
 }
 
 void Engine::SetPixel(int x, int y, Color c) noexcept
