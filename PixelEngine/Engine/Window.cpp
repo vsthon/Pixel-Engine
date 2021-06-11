@@ -11,7 +11,7 @@ void Window::Initialize() noexcept
 	WNDCLASSA wndClass = {};
 	wndClass.style = CS_OWNDC;
 	wndClass.lpfnWndProc = WinProc;
-	wndClass.hInstance = GetModuleHandle(nullptr);
+	wndClass.hInstance = NULL;
 	wndClass.hIcon = NULL;
 	wndClass.hCursor = NULL;
 	wndClass.hbrBackground = NULL;
@@ -45,7 +45,7 @@ Window::Window(const char* title, unsigned short width, unsigned short height)
 	// Create the window handle
 	RECT windowrect = { 0, 0, (LONG)width, (LONG)height };
 	AdjustWindowRect(&windowrect, WS_OVERLAPPEDWINDOW, FALSE);
-	handleWindow = CreateWindowA(wndClassName, title, WS_SYSMENU | WS_MINIMIZEBOX, 0, 0, windowrect.right - windowrect.left, windowrect.bottom - windowrect.top, NULL, NULL, GetModuleHandle(nullptr), NULL);
+	handleWindow = CreateWindowExA(0u, wndClassName, title, WS_SYSMENU | WS_MINIMIZEBOX, 0, 0, windowrect.right - windowrect.left, windowrect.bottom - windowrect.top, NULL, NULL, GetModuleHandle(nullptr), this);
 	// Show the window
 	ShowWindow(handleWindow, SW_SHOW);
 }
@@ -57,8 +57,19 @@ HWND Window::GetWindowHandle() noexcept
 
 LRESULT __stdcall Window::WinProc(HWND handleWindow, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	if (message == WM_NCCREATE)
+	{
+		SetWindowLongPtr(handleWindow, GWLP_USERDATA, (LONG)reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams);
+	}
+	Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(handleWindow, GWLP_USERDATA));
 	switch (message)
 	{
+	case WM_KEYDOWN:
+		window->keyboard.SetKeyIsPressed(lParam, true);
+		break;
+	case WM_KEYUP:
+		window->keyboard.SetKeyIsPressed(lParam, false);
+		break;
 	case WM_CLOSE:
 		DestroyWindow(handleWindow);
 		PostQuitMessage(0);

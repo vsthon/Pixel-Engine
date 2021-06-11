@@ -31,6 +31,8 @@ public:
 	// Present the frame
 	void EndFrame();
 public:
+	bool KeyIsPressed(unsigned char keycode) const noexcept;
+public:
 	const unsigned short width;
 	const unsigned short height;
 private:

@@ -15,7 +15,7 @@
     <ClCompile Include="Engine\Engine.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\main.cpp">
+    <ClCompile Include="Game\main.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -232,3 +232,8 @@ void Engine::EndFrame()
 	context->DrawIndexed(6u, 0u, 0u);
 	THROW_IF_FAILED(swapchain->Present(1u, 0u), "Error on presenting!");
 }
+
+bool Engine::KeyIsPressed(unsigned char keycode) const noexcept
+{
+	return window.keyboard.KeyIsPressed(keycode);
+}
