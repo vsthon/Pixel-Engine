@@ -59,16 +59,16 @@ LRESULT __stdcall Window::WinProc(HWND handleWindow, UINT message, WPARAM wParam
 {
 	if (message == WM_NCCREATE)
 	{
-		SetWindowLongPtr(handleWindow, GWLP_USERDATA, (LONG)reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams);
+		SetWindowLongPtr(handleWindow, GWLP_USERDATA, (LONG_PTR)reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams);
 	}
 	Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(handleWindow, GWLP_USERDATA));
 	switch (message)
 	{
 	case WM_KEYDOWN:
-		window->keyboard.SetKeyIsPressed(lParam, true);
+		window->keyboard.SetKeyIsPressed((unsigned char)wParam, true);
 		break;
 	case WM_KEYUP:
-		window->keyboard.SetKeyIsPressed(lParam, false);
+		window->keyboard.SetKeyIsPressed((unsigned char)wParam, false);
 		break;
 	case WM_CLOSE:
 		DestroyWindow(handleWindow);
@@ -79,4 +79,14 @@ LRESULT __stdcall Window::WinProc(HWND handleWindow, UINT message, WPARAM wParam
 		return DefWindowProc(handleWindow, message, wParam, lParam);
 	}
 	return 0;
+}
+
+bool Window::Keyboard::KeyIsPressed(unsigned char keycode) const noexcept
+{
+	return keystates[keycode];
+}
+
+void Window::Keyboard::SetKeyIsPressed(unsigned char keycode, const bool setstate) noexcept
+{
+	keystates[keycode] = setstate;
 }

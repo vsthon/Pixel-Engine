@@ -2,6 +2,7 @@
 #include <d3d11.h>
 #include <exception>
 #include <stdexcept>
+#include <assert.h>
 #include <string>
 #include <d3dcompiler.h>
 #pragma comment(lib, "d3d11.lib")
@@ -191,12 +192,18 @@ int Engine::Run() noexcept
 
 void Engine::BeginFrame()
 {
-	float color[] = { 0.f, 0.f, 0.f, 1.f };
-	context->ClearRenderTargetView(backbufferview.Get(), color);
+	for (size_t x = 0u; x < width; x++)
+	{
+		for (size_t y = 0u; y < height; y++)
+		{
+			systemBuffer[y * width + x] = { 0u, 0u, 0u, 0u };
+		}
+	}
 }
 
 void Engine::SetPixel(int x, int y, Color c) noexcept
 {
+	assert(x >= 0 && x < width && y >= 0 && y < height && "X or Y is less than zero or greater than Screen Width/Height!");
 	systemBuffer[y * width + x] = c;
 }
 

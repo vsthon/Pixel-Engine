@@ -18,6 +18,7 @@ public:
 	static void Init() noexcept;
 	// Constructor
 	Engine(const char* title, unsigned short width, unsigned short height);
+	~Engine() = default;
 	// Run bascially just calls window.Run();
 	int Run() noexcept;
 	// Clears the back buffer

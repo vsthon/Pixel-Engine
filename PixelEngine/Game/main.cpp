@@ -7,17 +7,21 @@ int __stdcall wWinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE, _In_ LPWSTR pCm
 	try
 	{
 		Engine engine("Hello", 800, 600);
+		int x = 200;
+		int y = 200;
 		while (engine.Run() > 0)
 		{
 			engine.BeginFrame();
-			if (engine.KeyIsPressed('A'))
+			if (engine.KeyIsPressed('W')) { y--; }
+			if (engine.KeyIsPressed('A')) { x--; }
+			if (engine.KeyIsPressed('S')) { y++; }
+			if (engine.KeyIsPressed('D')) { x++; }
+
+			for (int inx = x; inx < x + 300; inx++)
 			{
-				for (int i = 200; i < 300; i++)
+				for (int iny = y; iny < y + 300; iny++)
 				{
-					for (int j = 200; j < 300; j++)
-					{
-						engine.SetPixel(i, j, 255, 255, 255);
-					}
+					engine.SetPixel(inx, iny, 255, 255, 255);
 				}
 			}
 			engine.EndFrame();
