@@ -197,8 +197,10 @@ void Engine::BeginFrame()
 
 void Engine::SetPixel(int x, int y, Color c) noexcept
 {
-	assert(x >= 0 && x < width && y >= 0 && y < height && "X or Y is less than zero or greater than Screen Width/Height!");
-	systemBuffer[y * width + x] = c;
+	if (x >= 0 && x < width && y >= 0 && y < height)
+	{
+		systemBuffer[y * width + x] = c;
+	}
 }
 
 void Engine::SetPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b) noexcept
@@ -218,16 +220,11 @@ int Engine::GetHeight() const noexcept
 
 void Engine::EndFrame()
 {
-	// Copied from Chili's framework www.planetchili.net
 	THROW_IF_FAILED(context->Map(backbuffertexture.Get(), 0u, D3D11_MAP_WRITE_DISCARD, 0u, &mappedSBR), "Error on mapping SBR!");
-	Color* pDst = reinterpret_cast<Color*>(mappedSBR.pData);
-	const size_t dstPitch = mappedSBR.RowPitch / sizeof(Color);
-	const size_t srcPitch = width;
-	const size_t rowBytes = srcPitch * sizeof(Color);
-	for (size_t y = 0u; y < height; y++)
-	{
-		memcpy(&pDst[y * dstPitch], &systemBuffer[y * srcPitch], rowBytes);
-	}
+
+	Color* texturedata = reinterpret_cast<Color*>(mappedSBR.pData);
+	memcpy(texturedata, systemBuffer, sizeof(Color) * (width * height));
+
 	context->Unmap(backbuffertexture.Get(), 0u);
 	context->OMSetRenderTargets(1u, backbufferview.GetAddressOf(), nullptr);
 	context->DrawIndexed(6u, 0u, 0u);
@@ -237,4 +234,14 @@ void Engine::EndFrame()
 bool Engine::KeyIsPressed(unsigned char keycode) const noexcept
 {
 	return window.keyboard.KeyIsPressed(keycode);
+}
+
+int Engine::GetMouseX() const noexcept
+{
+	return window.mouse.GetX();
+}
+
+int Engine::GetMouseY() const noexcept
+{
+	return window.mouse.GetY();
 }

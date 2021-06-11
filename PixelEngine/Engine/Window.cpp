@@ -65,10 +65,28 @@ LRESULT __stdcall Window::WinProc(HWND handleWindow, UINT message, WPARAM wParam
 	switch (message)
 	{
 	case WM_KEYDOWN:
-		window->keyboard.SetKeyIsPressed((unsigned char)wParam, true);
+		window->keyboard.OnKeyPressed((unsigned char)wParam);
 		break;
 	case WM_KEYUP:
-		window->keyboard.SetKeyIsPressed((unsigned char)wParam, false);
+		window->keyboard.OnKeyReleased((unsigned char)wParam);
+		break;
+	case WM_MOUSEMOVE:
+		POINTS coordinates = MAKEPOINTS(lParam);
+		window->mouse.OnMouseMove(coordinates.x, coordinates.y);
+		break;
+	case WM_LBUTTONDOWN:	
+		// By default, windows will not generate WM_MOUSEMOVE if the cursor goes outside the window which is not what we want. SetCapture will keep generating WM_MOUSEMOVE
+		// even if outside the client region as long as you hold one mouse button down.
+		SetCapture(handleWindow);
+		break;
+	case WM_RBUTTONDOWN:
+		SetCapture(handleWindow);
+		break;
+	case WM_LBUTTONUP:
+		ReleaseCapture();
+		break;
+	case WM_RBUTTONUP:
+		ReleaseCapture();
 		break;
 	case WM_CLOSE:
 		DestroyWindow(handleWindow);
@@ -86,7 +104,28 @@ bool Window::Keyboard::KeyIsPressed(unsigned char keycode) const noexcept
 	return keystates[keycode];
 }
 
-void Window::Keyboard::SetKeyIsPressed(unsigned char keycode, const bool setstate) noexcept
+void Window::Keyboard::OnKeyPressed(unsigned char keycode) noexcept
 {
-	keystates[keycode] = setstate;
+	keystates[keycode] = true;
+}
+
+void Window::Keyboard::OnKeyReleased(unsigned char keycode) noexcept
+{
+	keystates[keycode] = false;
+}
+
+int Window::Mouse::GetX() const noexcept
+{
+	return x;
+}
+
+int Window::Mouse::GetY() const noexcept
+{
+	return y;
+}
+
+void Window::Mouse::OnMouseMove(int inx, int iny)
+{
+	x = inx;
+	y = iny;
 }

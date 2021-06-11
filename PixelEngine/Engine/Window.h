@@ -1,22 +1,33 @@
 #pragma once
+#define NOMINMAX
 #include <Windows.h>
 #include <bitset>
 
 class Window
 {
 private:
-	friend class Engine;
-private:
 	class Keyboard
 	{
-	private:
 		friend Window;
 	public:
 		bool KeyIsPressed(unsigned char keycode) const noexcept;
 	private:
-		void SetKeyIsPressed(unsigned char keycode, const bool setstate) noexcept;
+		void OnKeyPressed(unsigned char keycode) noexcept;
+		void OnKeyReleased(unsigned char keycode) noexcept;
 	private:
 		std::bitset<256> keystates;
+	};
+	class Mouse
+	{
+		friend Window;
+	public:
+		int GetX() const noexcept;
+		int GetY() const noexcept;
+	private:
+		void OnMouseMove(int inx, int iny);
+	private:
+		int x = 0;
+		int y = 0;
 	};
 public:
 	// Initialize will NOT create a window.
@@ -27,8 +38,9 @@ public:
 	Window(const char* title, unsigned short width, unsigned short height);
 	// Get window handle;
 	HWND GetWindowHandle() noexcept;
-private:
+public:
 	Keyboard keyboard;
+	Mouse mouse;
 private:
 	// Window procedure;
 	static LRESULT __stdcall WinProc(HWND handleWindow, UINT message, WPARAM wParam, LPARAM lParam);

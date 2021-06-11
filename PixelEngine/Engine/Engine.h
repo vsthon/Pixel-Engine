@@ -33,6 +33,8 @@ public:
 	void EndFrame();
 public:
 	bool KeyIsPressed(unsigned char keycode) const noexcept;
+	int GetMouseX() const noexcept;
+	int GetMouseY() const noexcept;
 public:
 	const unsigned short width;
 	const unsigned short height;
@@ -46,5 +48,5 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> backbufferview;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> backbuffertexture;
-	D3D11_MAPPED_SUBRESOURCE mappedSBR;
+	D3D11_MAPPED_SUBRESOURCE mappedSBR = {};
 };

@@ -8,14 +8,16 @@ int __stdcall wWinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE, _In_ LPWSTR pCm
 	{
 		Engine engine("Hello", 800, 600);
 		Engine engine2("Hello2", 800, 600);
-		int x1 = 200;
-		int y1 = 200;
-		int x2 = 200;
-		int y2 = 200;
+
 		while (engine.Run() > 0 && engine2.Run() > 0)
 		{
 			engine.BeginFrame();
-			engine2.BeginFrame();
+			engine2.BeginFrame();		
+			
+			int x1 = engine.GetMouseX();
+			int y1 = engine.GetMouseY();
+			int x2 = engine2.GetMouseX();
+			int y2 = engine2.GetMouseY();
 			// Engine 1
 			if (engine.KeyIsPressed('W')) { y1--; }
 			if (engine.KeyIsPressed('A')) { x1--; }
