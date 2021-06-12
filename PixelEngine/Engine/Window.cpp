@@ -78,15 +78,19 @@ LRESULT __stdcall Window::WinProc(HWND handleWindow, UINT message, WPARAM wParam
 		// By default, windows will not generate WM_MOUSEMOVE if the cursor goes outside the window which is not what we want. SetCapture will keep generating WM_MOUSEMOVE
 		// even if outside the client region as long as you hold one mouse button down.
 		SetCapture(handleWindow);
+		window->mouse.SetState(Mouse::State::LButtonDown);
 		break;
 	case WM_RBUTTONDOWN:
 		SetCapture(handleWindow);
+		window->mouse.SetState(Mouse::State::LButtonDown);
 		break;
 	case WM_LBUTTONUP:
 		ReleaseCapture();
+		window->mouse.SetState(Mouse::State::Empty);
 		break;
 	case WM_RBUTTONUP:
 		ReleaseCapture();
+		window->mouse.SetState(Mouse::State::Empty);
 		break;
 	case WM_CLOSE:
 		DestroyWindow(handleWindow);
@@ -124,8 +128,18 @@ int Window::Mouse::GetY() const noexcept
 	return y;
 }
 
-void Window::Mouse::OnMouseMove(int inx, int iny)
+Window::Mouse::State Window::Mouse::GetMouseState() const noexcept
+{
+	return state;
+}
+
+void Window::Mouse::OnMouseMove(int inx, int iny) noexcept
 {
 	x = inx;
 	y = iny;
+}
+
+void Window::Mouse::SetState(State instate) noexcept
+{
+	state = instate;
 }

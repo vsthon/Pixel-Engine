@@ -197,10 +197,8 @@ void Engine::BeginFrame()
 
 void Engine::SetPixel(int x, int y, Color c) noexcept
 {
-	if (x >= 0 && x < width && y >= 0 && y < height)
-	{
-		systemBuffer[y * width + x] = c;
-	}
+	assert(x >= 0 && x < width&& y >= 0 && y < height);
+	systemBuffer[y * width + x] = c;
 }
 
 void Engine::SetPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b) noexcept
@@ -244,4 +242,9 @@ int Engine::GetMouseX() const noexcept
 int Engine::GetMouseY() const noexcept
 {
 	return window.mouse.GetY();
+}
+
+Window::Mouse::State Engine::GetMouseState() const noexcept
+{
+	return window.mouse.GetMouseState();
 }

@@ -5,7 +5,7 @@
 
 class Window
 {
-private:
+public:
 	class Keyboard
 	{
 		friend Window;
@@ -21,13 +21,23 @@ private:
 	{
 		friend Window;
 	public:
+		enum class State
+		{
+			Empty,
+			LButtonDown,
+			RButtonDown,
+		};
+	public:
 		int GetX() const noexcept;
 		int GetY() const noexcept;
+		State GetMouseState() const noexcept;
 	private:
-		void OnMouseMove(int inx, int iny);
+		void OnMouseMove(int inx, int iny) noexcept;
+		void SetState(State instate) noexcept;
 	private:
 		int x = 0;
 		int y = 0;
+		State state = State::Empty;
 	};
 public:
 	// Initialize will NOT create a window.

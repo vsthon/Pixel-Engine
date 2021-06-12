@@ -35,6 +35,7 @@ public:
 	bool KeyIsPressed(unsigned char keycode) const noexcept;
 	int GetMouseX() const noexcept;
 	int GetMouseY() const noexcept;
+	Window::Mouse::State GetMouseState() const noexcept;
 public:
 	const unsigned short width;
 	const unsigned short height;
